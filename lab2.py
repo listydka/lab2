@@ -1,70 +1,27 @@
+"""
+Лабораторная работа №2
+Написать программу, решающую задачу из 1 лабораторной работы (в соответствии со своим вариантом) со следующими изменениями:
+1.  Входной файл является обыкновенным (т.е. нет требования на «бесконечность» файла);
+2.  Распознавание и обработку делать  через регулярные выражения;
+3.  В вариантах, где есть параметр (например К), допускается его заменить на любое число;
+4.  Все остальные требования соответствуют варианту задания лабораторной работы №1.
+Вариант 8.
+Натуральные числа. Обрабатывает числа по десяткам.
+Выводит на экран очередной десяток, если в нем есть более(>) К одинаковых чисел.
+В каждом десятке при выводе последнее число выводится прописью
+"""
 import re
-
-
-# Функция для преобразования числа в пропись
-def convert_number_to_words(number):
-    words_dict = {
-        '0': 'нуль', '1': 'один', '2': 'два', '3': 'три', '4': 'четыре', '5': 'пять',
-        '6': 'шесть', '7': 'семь', '8': 'восемь', '9': 'девять', '10': 'десять',
-        '11': 'одиннадцать', '12': 'двенадцать', '13': 'тринадцать', '14': 'четырнадцать',
-        '15': 'пятнадцать', '16': 'шестнадцать', '17': 'семнадцать', '18': 'восемнадцать',
-        '19': 'девятнадцать', '20': 'двадцать', '30': 'тридцать', '40': 'сорок',
-        '50': 'пятьдесят', '60': 'шестдесят', '70': 'семьдесят', '80': 'восемьдесят',
-        '90': 'девяносто'
-    }
-    if str(number) in words_dict:
-        return words_dict[str(number)]
-    elif 20 <= number < 100:
-        tens = (number // 10) * 10
-        ones = number % 10
-        return words_dict[str(tens)] + (' ' + words_dict[str(ones)] if ones > 0 else '')
-    return str(number)  # Для чисел больше 99 выводим просто число
-
-
-# Функция для поиска чисел в файле и обработки их
-def process_file(file_name, k):
-    # Считываем весь текст из файла
-    with open(file_name, 'r', encoding='utf-8') as file:
-        content = file.read()
-
-    # Находим все числа в тексте
-    numbers = re.findall(r'\d+', content)
-    numbers = list(map(int, numbers))  # Преобразуем найденные строки в числа
-
-    # Разбиваем числа на десятки
-    decade_groups = {}
-    for num in numbers:
-        decade = (num // 10) * 10  # Определяем десяток
-        if decade not in decade_groups:
-            decade_groups[decade] = []
-        decade_groups[decade].append(num)
-
-    # Проверка десятков на повторяющиеся числа
-    lexemes = []
-    for decade, group in decade_groups.items():
-        # Подсчитываем сколько раз встречаются числа в десятке
-        num_counts = {}
-        for num in group:
-            num_counts[num] = num_counts.get(num, 0) + 1
-
-        # Если в десятке есть число, которое повторяется больше чем k раз, выводим десяток
-        if any(count > k for count in num_counts.values()):
-            result = []
-            for num in group:
-                if num == group[-1]:  # последнее число десятка
-                    result.append(convert_number_to_words(num))
-                else:
-                    result.append(str(num))
-            lexemes.append(' '.join(result))
-
-    return lexemes
-
-
-# Пример использования
-file_name = 'input.txt'  # Имя файла с числами
-k = int(input('Введите K: '))
-lexemes = process_file(file_name, k - 1)  # Обрабатываем числа, повторяющиеся больше чем K раз
-
-# Выводим результат
-for lexeme in lexemes:
-    print(lexeme)
+def checking_for_identical_numbers(number):
+    return True if max(map(str(number).count, str(number))) > K else False
+def process_number(file):
+    dozens_list = [int(i) // 10 for i in re.findall(r'\d+', open(file, encoding='utf-8').read())]
+    if not any(checking_for_identical_numbers(dozens_list[i]) for i in range(len(dozens_list))): print("Программа не нашла чисел, удовлетворяющие условию (выводит на экран очередной десяток, если в нем есть более К одинаковых чисел.")
+    else:
+        for i in range(len(dozens_list)):
+            if checking_for_identical_numbers(dozens_list[i]): print(f"Число: {dozens_list[i]}, последняя цифра: {["ноль", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"][(int(str(dozens_list[i])[-1]))]}")
+if __name__ == "__main__":
+    try:
+        K = int(input("Введите число K, которое >= 0: "))
+        if K >= 0: process_number("test.txt")
+        else: print("Число K должно быть больше или равно 0. Перезапустите программу!")
+    except: print("Некорректные данные. Перезапустите программу!")
